@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>给lyns的圣诞树</title>
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: black;
+        }
+        #header {
+            position: absolute;
+            text-align: center;
+            color: #d8b33a;
+            font-family: Times New Roman;
+            font-size: 35px;
+            min-width: 400px;
+            max-height: 100vh;
+            z-index: 2
+          }
+      .header-item {
+        opacity: 0;
+        transition: all .5s ease-in-out;
+        line-height: 1.5;
+        margin: 0;
+        transform: translateX(200px);
+      }
+      .header-item.show {
+        opacity: 1;
+      }
+        .content {
+            position: relative;
+            z-index: 1;
+            color: white;
+        }
+
+        .candy-link {
+            display: inline-block; /* 让链接可以包裹住图片 */
+        }
+
+        .candy-image {
+            width: 150px; /* 设置图片宽度 */
+            height: auto; /* 让高度自适应 */
+            position: absolute;
+            top: -200%; /* 将图片垂直居中 */
+            left: -150%; /* 将图片水平居中 */
+            transform: translate(-50%, -50%); /* 通过transform调整位置，使其居中 */
+            animation: swing 0.5s ease-in-out infinite;
+        }
+
+        @keyframes swing {
+            0% {
+                transform: rotate(0deg);
+            }
+            50% {
+                transform: rotate(10deg);
+            }
+            100% {
+                transform: rotate(0deg);
+            }
+        }
+
+        .snowflake-container {
+            position: relative;
+            height: 100%;
+        }
+
+        .snowflake {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: url('https://www.pngdirs.com/thumb/350/snowflakes/snowflakes-7782.png') no-repeat;
+            background-size: contain;
+            animation: snowfall linear infinite;
+            animation-fill-mode: both;
+        }
+
+        @keyframes snowfall {
+            0% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 1;
+            }
+            50% {
+                transform: translateY(100vh) translateX(calc(10px * var(--direction))) rotate(calc(10deg * var(--rotation-direction)));
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(200vh) rotate(0deg);
+                opacity: 0;
+            }
+        }
+
+        
+        @keyframes spin {
+            0% { transform: rotateY( 0deg ); }
+            100% { transform: rotateY( 360deg ); }
+        }
+        .tree {
+            margin: 0 auto ; 
+          
+            left: -500px; /* 调整这个值以改变左侧位置 */
+           
+            position: relative;
+            animation: spin 18s infinite linear;
+            transform-origin: 50% 0;
+            transform-style: preserve-3d;
+            display: none; /* 隐藏初始时的圣诞树 */
+            transform: translateY(-200px);
+        }
+
+        .tree * {
+            position: absolute;
+            transform-origin: 0 0;
+        }
+
+    </style>
+</head>
+
+<body>
+    <div class="content" id="first">
+        <!-- 糖果图片链接 -->
+        <a href="#" class="candy-link" onclick="clearScreen()">
+          <img class="candy-image" src="https://www.pngdirs.com/thumb/350/candy-cane/candy-cane-11732.png" alt="Candy Image">
+      </a>
+        <!-- 页面其他内容 -->
+        <p>click</p>
+    </div>
+
+    <div class="snowflake-container"></div>
+    <div id="header"></div>
+    <div class="tree"></div>
+    <script>
+        
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const numberOfSnowflakes = 150;
+            const snowflakes = [];
+
+            for (let i = 0; i < numberOfSnowflakes; i++) {
+                createSnowflake();
+            }
+
+            function createSnowflake() {
+                const snowflake = document.createElement('div');
+                snowflake.className = 'snowflake';
+
+                if (Math.random() < 0.5) {
+                    // 设置 left
+                    snowflake.style.left = -Math.random() * 100 + 'vw';
+                } else {
+                    // 设置 right
+                    snowflake.style.right = -Math.random() * 100 + 'vw';
+                }
+
+                snowflake.style.top = -Math.random() * 100 + 'vh'; // 初始位置在屏幕顶部之外
+                snowflake.style.width = Math.random() * 30 + 10 + 'px'; // 随机宽度
+                snowflake.style.height = snowflake.style.width; // 保持宽度和高度相等
+                snowflake.style.animationDuration = Math.random() * 6 + 4 + 's'; // 调整动画持续时间
+                snowflake.style.setProperty('--direction', Math.random() < 0.5 ? -1 : 1);
+                snowflake.style.setProperty('--rotation-direction', Math.random() < 0.5 ? -1 : 1);
+
+                document.querySelector('.snowflake-container').appendChild(snowflake);
+                snowflakes.push(snowflake);
+
+                snowflake.addEventListener('animationend', function () {
+                    snowflake.remove();
+                    createSnowflake();
+                });
+            }
+
+            document.addEventListener('mousemove', function (event) {
+                const mouseX = event.clientX;
+                const mouseY = event.clientY;
+
+                snowflakes.forEach((snowflake) => {
+                    const snowflakeRect = snowflake.getBoundingClientRect();
+                    const snowflakeX = snowflakeRect.left + snowflakeRect.width / 2;
+                    const snowflakeY = snowflakeRect.top + snowflakeRect.height / 2;
+
+                    const deltaX = mouseX - snowflakeX;
+                    const deltaY = mouseY - snowflakeY;
+
+                    const angle = Math.atan2(deltaY, deltaX);
+                    const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+
+                    const force = 500 / (distance * distance);
+
+                    const forceX = force * Math.cos(angle);
+                    const forceY = force * Math.sin(angle);
+
+                    snowflake.style.transform = `translate(${forceX}px, ${forceY}px) rotate(calc(10deg * var(--rotation-direction)))`;
+                });
+            });
+        });
+    </script>
+    <script> 
+          let music_url = "http://music.163.com/song/media/outer/url?id=1892513656.mp3";
+          let _music = new Audio(music_url);
+        function clearScreen() {
+          _music.play();
+            let a=document.getElementById("first");
+            a.remove();
+            init();
+            tree.style.display = 'block';
+        // 生成圣诞树
+        generateChristmasTree();
+       
+        }
+      
+
+
+        let myLabels = [
+      "TO 小笨笨 刘印娜莎",
+      "Merry Christmas",
+      "祝我的小宝宝",
+      "平安夜美梦绵绵，圣诞节快乐连连",
+      "每天都开开心心，平平安安，健健康康到永远",
+    ];
+        function init() {
+      let element = document.getElementById("header");
+      for(let i = 0; i < myLabels.length; i++) {
+        let _p = document.createElement("p");
+        _p.className = "header-item";
+        _p.innerHTML = myLabels[i];
+        element.appendChild(_p);
+      }
+
+      let labels = document.getElementsByClassName('header-item');
+      for(let i = 0; i < myLabels.length; i++) {
+        setTimeout(() => {
+          labels[i].classList.add("show");
+        }, 1500 * i);
+      }      
+    }
+
+    </script>
+
+
+<script type="text/javascript">
+    // JavaScript Document
+    const width = 500;
+    const height = 600;
+    const quantity = 150;
+    const types = ['text', 'select', 'progress', 'meter', 'button', 'radio', 'checkbox'];
+    const greetings = ['2003.3.24', '小猪宝宝', 'Merry Christmas', '12.25', 'Merry Christmas', '2022.10.08', '小笨笨', '2003.3.24', '小笨笨', 'Merry Christmas', '圣诞快乐', ' 笨笨宝宝', '12.25', '笨笨宝宝', 'Merry Christmas', '圣诞快乐', 'Merry Christmas', '圣诞快乐'];
+    let tree = document.querySelector('.tree'),
+        treeRotation = 0;
+
+    function generateChristmasTree() {
+        // 清空现有的圣诞树
+        tree.innerHTML = '';
+
+        tree.style.width = width + 'px';
+        tree.style.height = height + 'px';
+
+        // The tree
+        for (var i = 0; i < quantity; i++) {
+            let element = null,
+                type = types[Math.floor(Math.random() * types.length)],
+                greeting = greetings[Math.floor(Math.random() * greetings.length)];
+
+            let x = width / 2,
+                y = Math.round(Math.random() * height);
+
+            let rx = 0,
+                ry = Math.random() * 360,
+                rz = -Math.random() * 15;
+
+            let elemenWidth = 5 + ((y / height) * width / 2),
+                elemenHeight = 26;
+
+            switch (type) {
+                case 'button':
+                    element = document.createElement('button');
+                    element.textContent = greeting;
+                    element.style.width = elemenWidth + 'px';
+                    element.style.height = elemenHeight + 'px';
+                    break;
+                case 'progress':
+                    element = document.createElement('progress');
+                    element.style.width = elemenWidth + 'px';
+                    element.style.height = elemenHeight + 'px';
+                    if (Math.random() > 0.5) {
+                        element.setAttribute('max', '100');
+                        element.setAttribute('value', Math.round(Math.random() * 100));
+                    }
+                    break;
+                case 'select':
+                    element = document.createElement('select');
+                    element.setAttribute('selected', greeting);
+                    element.innerHTML = '<option>' + greetings.join('</option><option>') + '</option>';
+                    element.style.width = elemenWidth + 'px';
+                    element.style.height = elemenHeight + 'px';
+                    break;
+                case 'meter':
+                    element = document.createElement('meter');
+                    element.setAttribute('min', '0');
+                    element.setAttribute('max', '100');
+                    element.setAttribute('value', Math.round(Math.random() * 100));
+                    element.style.width = elemenWidth + 'px';
+                    element.style.height = elemenHeight + 'px';
+                    break;
+                case 'text':
+                default:
+                    element = document.createElement('input');
+                    element.setAttribute('type', 'text');
+                    element.setAttribute('value', greeting);
+                    element.style.width = elemenWidth + 'px';
+                    element.style.height = elemenHeight + 'px';
+            }
+
+            element.style.transform = `translate3d(${x}px, ${y}px, 0px) rotateX(${rx}deg) rotateY(${ry}deg) rotateZ(${rz}deg)`;
+
+            tree.appendChild(element);
+        }
+
+        resize();
+    }
+
+    // 定义按钮点击事件
+
+
+    function resize() {
+        tree.style.top = ((window.innerHeight - height-400 ) / 2) + 'px';
+    }
+
+    window.addEventListener('resize', resize, false);
+
+    // 初始化时生成圣诞树（这里将其注释掉，因为现在需要点击按钮才生成）
+    // generateChristmasTree();
+
+</script>
+
+
+<style type="text/css" media="screen">
+    .credits {
+        position: absolute;
+        right: 20px;
+        bottom: 25px;
+        font-size: 15px;
+        z-index: 20;
+        color: #fff;
+        vertical-align: middle;
+    }
+
+    .credits * + * {
+        margin-left: 15px;
+    }
+
+    .credits a {
+        padding: 8px 10px;
+        color: rgba(255, 255, 255, 0.7);
+        border: 2px solid rgba(255, 255, 255, 0.7);
+        text-decoration: none;
+    }
+
+    .credits a:hover {
+        border-color: #fff;
+        color: #fff;
+    }
+
+    @media screen and (max-width: 1040px) {
+        .project-title {
+            display: none;
+        }
+
+        .credits {
+            width: 100%;
+            left: 0;
+            right: auto;
+            bottom: 0;
+            padding: 30px 0;
+            background: #b72424;
+            text-align: center;
+        }
+
+        .credits a {
+            display: inline-block;
+            margin-top: 7px;
+            margin-bottom: 7px;
+        }
+    }
+</style>
+</body>
+
+</html>
